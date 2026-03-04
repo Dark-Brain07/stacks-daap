@@ -38,11 +38,21 @@ export async function GET(req: NextRequest) {
         }
 
         // Acquire lock to prevent double-processing
+        // But first, force-release stale locks (isProcessing should be false)
+        if (!meta.isProcessing) {
+            await releaseProcessingLock();
+        }
+
         const lockAcquired = await acquireProcessingLock();
         if (!lockAcquired) {
-            return NextResponse.json({
-                message: 'Another cron job is already processing. Skipping.',
-            });
+            // Force release and try once more
+            await releaseProcessingLock();
+            const retry = await acquireProcessingLock();
+            if (!retry) {
+                return NextResponse.json({
+                    message: 'Could not acquire lock. Try again shortly.',
+                });
+            }
         }
 
         await setProcessing(true);
