@@ -41,6 +41,7 @@ export default function ServerQueueProgress({ onClear }: Props) {
     const [txs, setTxs] = useState<QueueTx[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     const fetchStatus = useCallback(async () => {
         try {
@@ -81,6 +82,18 @@ export default function ServerQueueProgress({ onClear }: Props) {
             onClear();
         } catch {
             // ignore
+        }
+    };
+
+    const handleProcessBatch = async () => {
+        setProcessing(true);
+        try {
+            await fetch('/api/cron/deploy');
+            await fetchStatus();
+        } catch {
+            // ignore
+        } finally {
+            setProcessing(false);
         }
     };
 
@@ -180,7 +193,9 @@ export default function ServerQueueProgress({ onClear }: Props) {
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
                     <span>
-                        Cron job runs every 10 min. You can <strong>close this page</strong> — deployment continues on the server.
+                        Transactions are queued on the server. Use the <strong>&quot;Process Next Batch&quot;</strong> button below, or set up a free cron at{' '}
+                        <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-primary)' }}>cron-job.org</a>{' '}
+                        to auto-trigger every 10 min.
                     </span>
                 </div>
             )}
@@ -201,9 +216,9 @@ export default function ServerQueueProgress({ onClear }: Props) {
                     <div
                         key={tx.contractName}
                         className={`tx-row ${tx.status === 'success' ? 'tx-success'
-                                : tx.status === 'failed' ? 'tx-failed'
-                                    : tx.status === 'broadcasting' ? 'tx-active'
-                                        : 'tx-pending'
+                            : tx.status === 'failed' ? 'tx-failed'
+                                : tx.status === 'broadcasting' ? 'tx-active'
+                                    : 'tx-pending'
                             }`}
                     >
                         <span className="tx-name">{tx.contractName}</span>
@@ -223,13 +238,17 @@ export default function ServerQueueProgress({ onClear }: Props) {
                 ))}
             </div>
 
-            {/* Clear button */}
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                <button className="btn btn-danger" onClick={handleClear}>
-                    Clear Queue
-                </button>
+            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {!isComplete && (
+                    <button className="btn btn-primary" onClick={handleProcessBatch} disabled={processing || meta.isProcessing}>
+                        {processing ? '⏳ Processing...' : '⚡ Process Next Batch (25 txs)'}
+                    </button>
+                )}
                 <button className="btn" onClick={fetchStatus}>
                     Refresh
+                </button>
+                <button className="btn btn-danger" onClick={handleClear}>
+                    Clear Queue
                 </button>
             </div>
         </div>
