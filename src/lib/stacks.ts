@@ -2,6 +2,7 @@
 
 import {
     makeContractDeploy,
+    makeSTXTokenTransfer,
     AnchorMode,
     PostConditionMode,
     ClarityVersion,
@@ -11,6 +12,7 @@ import { STACKS_MAINNET } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
 import {
     DEPLOY_FEE_MICRO_STX,
+    FILLER_FEE_MICRO_STX,
 } from './constants';
 
 // ---------- Key Derivation ----------
@@ -86,6 +88,50 @@ function hexToBytes(hex: string): Uint8Array {
         bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
     }
     return bytes;
+}
+
+// ---------- Filler Transaction (Tiny Contract Deploy) ----------
+export interface FillerTxParams {
+    senderKey: string;
+    recipientAddress: string;
+    nonce: number;
+    fee?: number;
+}
+
+/**
+ * Build a minimal contract deploy to fill a missing nonce gap.
+ * Deploys a tiny 1-line Clarity contract with a unique random name.
+ * Uses the same proven deploy path as real contract deployments.
+ */
+export async function buildFillerTx(params: FillerTxParams): Promise<string> {
+    const { senderKey, nonce, fee } = params;
+
+    // Random 6-char suffix to avoid name collisions
+    const suffix = Math.random().toString(36).substring(2, 8);
+    const contractName = `fill-${nonce}-${suffix}`;
+    const codeBody = `(define-constant FILLER true)`;
+
+    const txOptions = {
+        contractName,
+        codeBody,
+        senderKey,
+        nonce,
+        fee: fee ?? FILLER_FEE_MICRO_STX,
+        network: STACKS_MAINNET,
+        anchorMode: AnchorMode.Any,
+        postConditionMode: PostConditionMode.Allow,
+        clarityVersion: ClarityVersion.Clarity2,
+    };
+
+    const transaction = await makeContractDeploy(txOptions);
+    const serialized = transaction.serialize();
+
+    if (typeof serialized === 'string') {
+        return serialized;
+    }
+    return Array.from(new Uint8Array(serialized))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 
 // ---------- Broadcast (not used directly — goes through /api/deploy) ----------

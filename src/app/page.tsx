@@ -6,6 +6,7 @@ import BalanceDisplay from '@/components/BalanceDisplay';
 import MainnetWarning from '@/components/MainnetWarning';
 import ContractUploader, { ContractItem } from '@/components/ContractUploader';
 import DeploymentProgress from '@/components/DeploymentProgress';
+import NonceFixPanel from '@/components/NonceFixPanel';
 import ServerQueueProgress from '@/components/ServerQueueProgress';
 import { deriveAccount, buildSignedDeployTx, DerivedAccount } from '@/lib/stacks';
 import { findDuplicateNames } from '@/lib/clarity-validator';
@@ -26,7 +27,7 @@ export default function HomePage() {
   const [mainnetConfirmed, setMainnetConfirmed] = useState(false);
   const [mainnetProceeded, setMainnetProceeded] = useState(false);
 
-  const [deployMode, setDeployMode] = useState<DeployMode>('server');
+  const [deployMode, setDeployMode] = useState<DeployMode>('live');
   const [isDeploying, setIsDeploying] = useState(false);
   const [progress, setProgress] = useState<QueueProgress | null>(null);
   const [deployError, setDeployError] = useState('');
@@ -259,6 +260,19 @@ export default function HomePage() {
                 balanceStx={balanceStx}
                 contractCount={validContractCount}
                 address={account.stxAddress}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Transaction Health — Nonce Gap Fixer */}
+        {account && (
+          <section className="step fade-in">
+            <div className="step-number">🔧</div>
+            <div className="step-content">
+              <NonceFixPanel
+                address={account.stxAddress}
+                senderKey={senderKey}
               />
             </div>
           </section>

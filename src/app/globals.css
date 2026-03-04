@@ -1066,3 +1066,91 @@ body::before {
     margin-top: 0;
   }
 }
+
+/* ============================================================
+   Nonce Fix Panel
+   ============================================================ */
+.nonce-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.nonce-stat {
+  background: var(--bg-glass);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.nonce-stat-value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.nonce-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+}
+
+.nonce-stat-danger {
+  color: var(--color-error);
+}
+
+.nonce-stat-ok {
+  color: var(--color-success);
+}
+
+.nonce-fix-list {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.nonce-fix-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.nonce-fix-row:last-child {
+  border-bottom: none;
+}
+
+.nonce-fix-nonce {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  min-width: 80px;
+}
+
+.nonce-fix-status {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nonce-fix-sending {
+  background: rgba(108, 92, 231, 0.06);
+}
+
+.nonce-fix-success {
+  background: rgba(0, 206, 201, 0.06);
+}
+
+.nonce-fix-failed {
+  background: rgba(255, 107, 107, 0.06);
+}

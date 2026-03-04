@@ -3,6 +3,8 @@
 
 export const DEPLOY_FEE_MICRO_STX = 1000; // 0.001 STX
 export const DEPLOY_FEE_STX = 0.001;
+export const FILLER_FEE_MICRO_STX = 3000; // 0.003 STX — matches deploy fee level
+export const FILLER_FEE_STX = 0.003;
 
 export const MAX_CONTRACTS = 10_000;
 export const CONCURRENCY_LIMIT = 1;  // Sequential to avoid nonce conflicts
