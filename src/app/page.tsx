@@ -8,10 +8,10 @@ import ContractUploader, { ContractItem } from '@/components/ContractUploader';
 import DeploymentProgress from '@/components/DeploymentProgress';
 import NonceFixPanel from '@/components/NonceFixPanel';
 import ServerQueueProgress from '@/components/ServerQueueProgress';
-import { deriveAccount, buildSignedDeployTx, DerivedAccount } from '@/lib/stacks';
+import { deriveAccount, buildSignedDeployTx, DerivedAccount, fetchFeeEstimate, FeeEstimate } from '@/lib/stacks';
 import { findDuplicateNames } from '@/lib/clarity-validator';
 import { runDeploymentQueue, QueueProgress, DeployJob } from '@/lib/queue';
-import { DEPLOY_FEE_STX } from '@/lib/constants';
+import { FeeTier, FEE_TIER_LABELS } from '@/lib/constants';
 
 type DeployMode = 'live' | 'server';
 
@@ -30,6 +30,10 @@ export default function HomePage() {
   const [deployMode, setDeployMode] = useState<DeployMode>('live');
   const [isDeploying, setIsDeploying] = useState(false);
   const [progress, setProgress] = useState<QueueProgress | null>(null);
+
+  // Fee estimation
+  const [feeEstimate, setFeeEstimate] = useState<FeeEstimate | null>(null);
+  const [feeTier, setFeeTier] = useState<FeeTier>('medium');
   const [deployError, setDeployError] = useState('');
 
   // Server queue state
@@ -48,10 +52,14 @@ export default function HomePage() {
       setAccount(derived);
       setSenderKey(derived.stxPrivateKey);
 
-      const res = await fetch(`/api/balance?address=${derived.stxAddress}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setBalanceStx(parseFloat(data.balanceStx));
+      // Fetch balance and fee estimate in parallel
+      const [balRes, fees] = await Promise.all([
+        fetch(`/api/balance?address=${derived.stxAddress}`).then(r => r.json()),
+        fetchFeeEstimate(),
+      ]);
+      if (balRes.error) throw new Error(balRes.error);
+      setBalanceStx(parseFloat(balRes.balanceStx));
+      setFeeEstimate(fees);
     } catch (err: unknown) {
       setConnectError(err instanceof Error ? err.message : 'Failed to connect');
       setAccount(null);
@@ -77,7 +85,9 @@ export default function HomePage() {
       return;
     }
 
-    const requiredStx = validContracts.length * DEPLOY_FEE_STX;
+    const selectedFee = feeEstimate ? feeEstimate[feeTier] : 10000;
+    const feePerContractStx = selectedFee / 1_000_000;
+    const requiredStx = validContracts.length * feePerContractStx;
     if (balanceStx < requiredStx) {
       setDeployError(`Insufficient balance. Need ${requiredStx.toFixed(6)} STX, have ${balanceStx.toFixed(6)} STX.`);
       return;
@@ -106,6 +116,7 @@ export default function HomePage() {
           codeBody: contract.code,
           senderKey,
           nonce: currentNonce,
+          fee: selectedFee,
         });
 
         signedTxs.push({
@@ -136,7 +147,7 @@ export default function HomePage() {
     } finally {
       setIsSigning(false);
     }
-  }, [account, senderKey, contracts, balanceStx]);
+  }, [account, senderKey, contracts, balanceStx, feeEstimate, feeTier]);
 
   // ---------- Live Deploy (Browser-Based) ----------
   const handleLiveDeploy = useCallback(async () => {
@@ -154,7 +165,9 @@ export default function HomePage() {
       return;
     }
 
-    const requiredStx = validContracts.length * DEPLOY_FEE_STX;
+    const selectedFee = feeEstimate ? feeEstimate[feeTier] : 10000;
+    const feePerContractStx = selectedFee / 1_000_000;
+    const requiredStx = validContracts.length * feePerContractStx;
     if (balanceStx < requiredStx) {
       setDeployError(`Insufficient balance. Need ${requiredStx.toFixed(6)} STX, have ${balanceStx.toFixed(6)} STX.`);
       return;
@@ -180,7 +193,7 @@ export default function HomePage() {
         startNonce,
         onProgress: (p) => setProgress({ ...p }),
         buildAndSignTx: async (name, code, key, nonce) => {
-          return buildSignedDeployTx({ contractName: name, codeBody: code, senderKey: key, nonce });
+          return buildSignedDeployTx({ contractName: name, codeBody: code, senderKey: key, nonce, fee: selectedFee });
         },
         broadcastTx: async (signedHex) => {
           const res = await fetch('/api/deploy', {
@@ -208,7 +221,7 @@ export default function HomePage() {
     } finally {
       setIsDeploying(false);
     }
-  }, [account, senderKey, contracts, balanceStx]);
+  }, [account, senderKey, contracts, balanceStx, feeEstimate, feeTier]);
 
   const handleCancel = useCallback(() => {
     cancelledRef.current = true;
@@ -318,6 +331,33 @@ export default function HomePage() {
                   <h3>Launch Deployment</h3>
                 </div>
 
+                {/* Fee tier selector */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.4rem' }}>
+                    Transaction Fee
+                    {feeEstimate && <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--color-muted)', marginLeft: '0.5rem' }}>
+                      (source: {feeEstimate.source})
+                    </span>}
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.35rem' }}>
+                    {(['low', 'medium', 'high'] as FeeTier[]).map((tier) => (
+                      <button
+                        key={tier}
+                        className={`btn ${feeTier === tier ? 'btn-primary' : ''}`}
+                        onClick={() => setFeeTier(tier)}
+                        style={{ flex: 1, fontSize: '0.8rem', padding: '0.4rem 0.5rem' }}
+                      >
+                        <div>{FEE_TIER_LABELS[tier]}</div>
+                        {feeEstimate && (
+                          <div style={{ fontSize: '0.7rem', opacity: 0.7, marginTop: '0.15rem' }}>
+                            {(feeEstimate[tier] / 1_000_000).toFixed(4)} STX/tx
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Deploy mode selector */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                   <button
@@ -358,7 +398,7 @@ export default function HomePage() {
 
                 <p className="text-muted">
                   Deploy <strong>{validContractCount.toLocaleString()}</strong> contracts for a total of{' '}
-                  <strong>{(validContractCount * DEPLOY_FEE_STX).toFixed(6)} STX</strong>.
+                  <strong>{((feeEstimate ? feeEstimate[feeTier] : 10000) / 1_000_000 * validContractCount).toFixed(6)} STX</strong>.
                 </p>
 
                 {deployError && (
