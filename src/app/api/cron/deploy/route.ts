@@ -94,22 +94,35 @@ export async function GET(req: NextRequest) {
 
                     const responseText = await res.text();
 
-                    let data: Record<string, unknown>;
+                    let data: Record<string, unknown> | null = null;
                     try {
                         data = JSON.parse(responseText);
                     } catch {
-                        // Plain string txid — success!
-                        const txId = responseText.replace(/"/g, '');
-                        await updateTxStatus(tx.contractName, {
-                            status: 'success',
-                            txId,
-                        });
-                        batchSucceeded++;
-                        console.log(`[CRON] ✓ ${tx.contractName} → ${txId}`);
-                        continue;
+                        // Plain text response
+                        if (res.ok) {
+                            // Success — plain string txid
+                            const txId = responseText.replace(/"/g, '');
+                            await updateTxStatus(tx.contractName, {
+                                status: 'success',
+                                txId,
+                            });
+                            batchSucceeded++;
+                            console.log(`[CRON] ✓ ${tx.contractName} → ${txId}`);
+                            continue;
+                        } else {
+                            // Error — plain string error message
+                            await updateTxStatus(tx.contractName, {
+                                status: 'failed',
+                                error: responseText.slice(0, 200),
+                                attempts: tx.attempts + 1,
+                            });
+                            batchFailed++;
+                            console.log(`[CRON] ✗ ${tx.contractName}: ${responseText}`);
+                            continue;
+                        }
                     }
 
-                    if (!res.ok || data.error || data.message) {
+                    if (data && (!res.ok || data.error || data.message)) {
                         const errorMsg = (data.error || data.message || 'Broadcast rejected') as string;
 
                         // If mempool chaining limit, stop processing this batch
@@ -139,7 +152,7 @@ export async function GET(req: NextRequest) {
                         console.log(`[CRON] ✗ ${tx.contractName}: ${errorMsg}`);
                     } else {
                         // Success
-                        const txId = (data.txid || responseText.replace(/"/g, '')) as string;
+                        const txId = (data?.txid || responseText.replace(/"/g, '')) as string;
                         await updateTxStatus(tx.contractName, {
                             status: 'success',
                             txId,
