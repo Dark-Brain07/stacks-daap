@@ -1,8 +1,8 @@
 // Stax Bulk Deployer — Constants
 // All fee values are in microSTX (1 STX = 1,000,000 µSTX)
 
-export const DEPLOY_FEE_MICRO_STX = 3000; // 0.003 STX
-export const DEPLOY_FEE_STX = 0.003;
+export const DEPLOY_FEE_MICRO_STX = 1000; // 0.001 STX
+export const DEPLOY_FEE_STX = 0.001;
 
 export const MAX_CONTRACTS = 10_000;
 export const CONCURRENCY_LIMIT = 1;  // Sequential to avoid nonce conflicts
