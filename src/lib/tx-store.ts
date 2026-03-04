@@ -128,8 +128,8 @@ export async function getQueueStatus(): Promise<{
  */
 export async function acquireProcessingLock(): Promise<boolean> {
     const r = getRedis();
-    // SET NX with 5-minute TTL
-    const result = await r.set(QUEUE_LOCK_KEY, 'locked', { nx: true, ex: 300 });
+    // SET NX with 15-second TTL (Vercel functions timeout at 10s)
+    const result = await r.set(QUEUE_LOCK_KEY, 'locked', { nx: true, ex: 15 });
     return result === 'OK';
 }
 
