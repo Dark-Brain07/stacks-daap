@@ -2960,3 +2960,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 31-2 [2dd86977] */
+.ui-refinement-2dd86977 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
