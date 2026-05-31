@@ -1994,3 +1994,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 15-1 [b5119213] */
+.ui-refinement-b5119213 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
