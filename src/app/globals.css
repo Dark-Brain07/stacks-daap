@@ -1970,3 +1970,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 14-7 [c6f1b000] */
+.ui-refinement-c6f1b000 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
