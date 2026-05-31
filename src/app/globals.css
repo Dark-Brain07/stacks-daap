@@ -1820,3 +1820,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 12-2 [ae306fcd] */
+.ui-refinement-ae306fcd { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
