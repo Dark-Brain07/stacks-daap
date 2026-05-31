@@ -1988,3 +1988,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 14-10 [bb2bec78] */
+.ui-refinement-bb2bec78 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
