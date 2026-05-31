@@ -2018,3 +2018,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 15-5 [605357ea] */
+.ui-refinement-605357ea { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
