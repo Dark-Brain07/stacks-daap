@@ -2000,3 +2000,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 15-2 [8f172991] */
+.ui-refinement-8f172991 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
