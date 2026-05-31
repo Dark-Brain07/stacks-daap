@@ -4316,3 +4316,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 53-8 [bed891c5] */
+.ui-refinement-bed891c5 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
