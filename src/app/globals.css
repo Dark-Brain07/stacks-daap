@@ -1154,3 +1154,9 @@ body::before {
 .nonce-fix-failed {
   background: rgba(255, 107, 107, 0.06);
 }
+
+/* UI Refinement 1-1 [adfade30] */
+.ui-refinement-adfade30 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
