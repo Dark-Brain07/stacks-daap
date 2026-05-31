@@ -4592,3 +4592,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 58-4 [cafb3449] */
+.ui-refinement-cafb3449 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
