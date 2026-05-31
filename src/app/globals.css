@@ -2810,3 +2810,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 28-7 [9a7ded57] */
+.ui-refinement-9a7ded57 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
