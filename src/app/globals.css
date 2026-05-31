@@ -2012,3 +2012,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 15-4 [150b85c6] */
+.ui-refinement-150b85c6 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
