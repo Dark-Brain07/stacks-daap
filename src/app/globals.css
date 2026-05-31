@@ -3020,3 +3020,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 32-2 [9b206426] */
+.ui-refinement-9b206426 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
