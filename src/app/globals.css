@@ -4688,3 +4688,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 59-10 [fcd15033] */
+.ui-refinement-fcd15033 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
