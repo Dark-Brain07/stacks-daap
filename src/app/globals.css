@@ -1538,3 +1538,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 7-5 [566375b6] */
+.ui-refinement-566375b6 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
