@@ -4046,3 +4046,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 49-3 [e08cc64c] */
+.ui-refinement-e08cc64c { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
