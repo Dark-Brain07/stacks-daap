@@ -4430,3 +4430,9 @@ body::before {
   /* Minor layout adjustment */
   margin-bottom: 0px;
 }
+
+/* UI Refinement 55-7 [3915d0e7] */
+.ui-refinement-3915d0e7 { 
+  /* Minor layout adjustment */
+  margin-bottom: 0px;
+}
